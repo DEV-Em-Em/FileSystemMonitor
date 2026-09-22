@@ -1,6 +1,4 @@
-# SeniorCSharpReference - FileSystemMonitor
-
-A .NET 8 Senior C# interview reference project.
+# FileSystemMonitor
 
 ## Architecture
 
