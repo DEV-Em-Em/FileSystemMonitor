@@ -1,0 +1,20 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build solution",
+            "type": "process",
+            "command": "dotnet",
+            "args": ["build", "${workspaceFolder}/FileSystemMonitor.sln"],
+            "problemMatcher": "$msCompile",
+            "group": "build"
+        },
+        {
+            "label": "test solution",
+            "type": "process",
+            "command": "dotnet",
+            "args": ["test", "${workspaceFolder}/FileSystemMonitor.sln", "--no-restore"],
+            "problemMatcher": "$msCompile"
+        }
+    ]
+}

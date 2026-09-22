@@ -1,0 +1,39 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "API (.NET 8)",
+            "type": "coreclr",
+            "request": "launch",
+            "program": "${workspaceFolder}/FileSystemMonitor.Api/bin/Debug/net8.0/FileSystemMonitor.Api.dll",
+            "cwd": "${workspaceFolder}/FileSystemMonitor.Api",
+            "stopAtEntry": false,
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development",
+                "ASPNETCORE_URLS": "https://localhost:7001"
+            }
+        },
+        {
+            "name": "Web (.NET 8)",
+            "type": "coreclr",
+            "request": "launch",
+            "program": "${workspaceFolder}/FileSystemMonitor.Web/bin/Debug/net8.0/FileSystemMonitor.Web.dll",
+            "cwd": "${workspaceFolder}/FileSystemMonitor.Web",
+            "stopAtEntry": false,
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development",
+                "ASPNETCORE_URLS": "https://localhost:7002"
+            }
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Web + API",
+            "configurations": [
+                "API (.NET 8)",
+                "Web (.NET 8)"
+            ],
+            "stopAll": true
+        }
+    ]
+}

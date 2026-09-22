@@ -1,0 +1,87 @@
+@model FileAnalysisPageViewModel
+
+<div class="page-header">
+    <div>
+        <h1>File System Analysis</h1>
+        <p>Persistent snapshots with version history and change tracking.</p>
+    </div>
+</div>
+
+<form asp-action="Analyze" method="post" class="toolbar" id="analysisForm">
+    @Html.AntiForgeryToken()
+    <div class="path-control">
+        <label for="path">Directory</label>
+        <input id="path" name="path" value="@Model.Path" placeholder="C:\Temp\MyFolder" required />
+    </div>
+    <button type="submit" id="analyzeButton">Analyze</button>
+</form>
+
+<div id="progress" class="progress hidden">
+    <div class="spinner"></div>
+    <span>Analyzing files… calculating snapshot and comparing versions.</span>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(Model.Error))
+{
+    <div class="alert error">@Model.Error</div>
+}
+
+@if (Model.Analysis is not null)
+{
+    var a = Model.Analysis;
+
+    <section class="version-card">
+        <div>
+            <div class="eyebrow">CURRENT SNAPSHOT</div>
+            <div class="version-title">Version @a.Version</div>
+            <div class="muted">
+                @a.AnalyzedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")
+                · Previous: @(a.PreviousVersion?.ToString() ?? "none")
+            </div>
+        </div>
+        <div class="root-path">@a.RootPath</div>
+    </section>
+
+    <section class="summary-grid">
+        <div class="summary"><span>Total files</span><strong>@a.TotalFiles</strong></div>
+        <div class="summary added"><span>Added</span><strong>@a.Changes.Added</strong></div>
+        <div class="summary modified"><span>Modified</span><strong>@a.Changes.Modified</strong></div>
+        <div class="summary removed"><span>Removed</span><strong>@a.Changes.Removed</strong></div>
+    </section>
+
+    <section class="tree-panel">
+        <div class="tree-header">
+            <div>
+                <h2>Version @a.Version</h2>
+                <span>@a.Files.Count items in analysis result</span>
+            </div>
+            <div class="legend">
+                <span><i class="dot added-dot"></i>Added</span>
+                <span><i class="dot modified-dot"></i>Modified</span>
+                <span><i class="dot removed-dot"></i>Removed</span>
+                <span><i class="dot unchanged-dot"></i>Unchanged</span>
+            </div>
+        </div>
+
+        <div class="tree" id="fileTree">
+            @await Html.PartialAsync("_TreeNode", Model.Tree)
+        </div>
+    </section>
+}
+
+@functions {
+    public sealed class TreeNodeViewModel
+    {
+        public string Name { get; init; } = string.Empty;
+        public List<TreeNodeViewModel> Folders { get; } = [];
+        public List<FileAnalysisItem> Files { get; } = [];
+    }
+
+    public static string FormatSize(long bytes)
+    {
+        if (bytes < 1024) return $"{bytes} B";
+        if (bytes < 1024 * 1024) return $"{bytes / 1024d:0.0} KB";
+        if (bytes < 1024L * 1024 * 1024) return $"{bytes / 1024d / 1024d:0.0} MB";
+        return $"{bytes / 1024d / 1024d / 1024d:0.0} GB";
+    }
+}

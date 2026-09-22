@@ -1,0 +1,6 @@
+bin/
+obj/
+.vs/
+*.user
+*.suo
+FileSystemMonitor.Api/Data/Snapshots/

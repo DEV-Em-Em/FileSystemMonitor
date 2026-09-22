@@ -1,0 +1,101 @@
+@model FileSystemMonitor.Web.Models.TreeNodeViewModel
+
+@{
+    var folderStatusClass = GetStatusClass(Model.Status);
+}
+
+<div class="tree-node folder @folderStatusClass"
+     style="--depth:@Model.Depth">
+
+    <button type="button" class="tree-toggle">▾</button>
+
+    <span class="folder-icon">
+    @(Model.Status == FileChangeStatus.Removed ? "✕" : "▰")
+</span>
+
+    <span class="node-name">
+        @Model.Name
+    </span>
+
+    @if (Model.Status != FileChangeStatus.Unchanged)
+    {
+        <span class="status">
+            @Model.Status
+        </span>
+    }
+</div>
+
+<div class="tree-children">
+
+    @foreach (var folder in Model.Folders
+        .OrderBy(
+            x => x.Name,
+            StringComparer.OrdinalIgnoreCase))
+    {
+        @await Html.PartialAsync(
+            "_TreeNode",
+            folder)
+    }
+
+    @foreach (var file in Model.Files
+        .OrderBy(
+            x => x.RelativePath,
+            StringComparer.OrdinalIgnoreCase))
+    {
+        <div class="tree-node file @GetStatusClass(file.Status)"
+             style="--depth:@(Model.Depth + 1)">
+
+            <span class="tree-spacer"></span>
+
+            <span class="file-icon">●</span>
+
+            <span class="node-name">
+                @System.IO.Path.GetFileName(
+                    file.RelativePath)
+            </span>
+
+            <span class="status">
+                @file.Status
+            </span>
+
+            <span class="file-version">
+                v@(file.Version)
+            </span>
+
+            <span class="size">
+                @FormatSize(file.Size)
+            </span>
+        </div>
+    }
+
+</div>
+
+@functions {
+
+    private static string GetStatusClass(
+        FileChangeStatus status) =>
+        status switch
+        {
+            FileChangeStatus.Added => "added",
+
+            FileChangeStatus.Modified => "modified",
+
+            FileChangeStatus.Removed => "removed",
+
+            _ => "unchanged"
+        };
+
+    private static string FormatSize(long bytes)
+    {
+        if (bytes < 1024)
+            return $"{bytes} B";
+
+        if (bytes < 1024 * 1024)
+            return $"{bytes / 1024d:0.0} KB";
+
+        if (bytes < 1024L * 1024 * 1024)
+            return $"{bytes / 1024d / 1024d:0.0} MB";
+
+        return $"{bytes / 1024d / 1024d / 1024d:0.0} GB";
+    }
+}
